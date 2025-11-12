@@ -1,0 +1,557 @@
+================================================================================
+RAPORT PRZEWIDYWAŃ OPADÓW - WOJEWÓDZTWA POLSKI
+================================================================================
+
+Okres testowy: 2024-01-01 00:00:00 - 2024-12-30 00:00:00
+Liczba predykcji: 5840
+Dokładność ogólna: 70.19%
+ROC AUC: 0.693
+
+--------------------------------------------------------------------------------
+STATYSTYKI PO WOJEWÓDZTWACH
+--------------------------------------------------------------------------------
+
+
+============================================================
+WOJEWÓDZTWO: dolnośląskie
+============================================================
+Liczba dni: 365
+Dokładność: 69.59%
+Dni z opadem (rzeczywiste): 244.0
+Dni z opadem (przewidziane): 279.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   OPAD       BRAK       0.429      ✗
+2024-01-02   BRAK       OPAD       0.590      ✗
+2024-01-03   BRAK       BRAK       0.128      ✓
+2024-01-04   BRAK       BRAK       0.163      ✓
+2024-01-05   BRAK       OPAD       0.545      ✗
+2024-01-06   BRAK       BRAK       0.435      ✓
+2024-01-07   OPAD       BRAK       0.414      ✗
+2024-01-08   OPAD       BRAK       0.386      ✗
+2024-01-09   OPAD       BRAK       0.273      ✗
+2024-01-10   BRAK       BRAK       0.202      ✓
+2024-01-11   BRAK       BRAK       0.427      ✓
+2024-01-12   BRAK       BRAK       0.197      ✓
+2024-01-13   BRAK       BRAK       0.179      ✓
+2024-01-14   BRAK       BRAK       0.200      ✓
+2024-01-15   BRAK       BRAK       0.164      ✓
+2024-01-16   BRAK       BRAK       0.180      ✓
+2024-01-17   OPAD       BRAK       0.322      ✗
+2024-01-18   BRAK       BRAK       0.416      ✓
+2024-01-19   OPAD       BRAK       0.380      ✗
+2024-01-20   OPAD       OPAD       0.706      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: kujawsko-pomorskie
+============================================================
+Liczba dni: 365
+Dokładność: 72.05%
+Dni z opadem (rzeczywiste): 259.0
+Dni z opadem (przewidziane): 287.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.188      ✓
+2024-01-02   BRAK       BRAK       0.218      ✓
+2024-01-03   BRAK       BRAK       0.184      ✓
+2024-01-04   OPAD       BRAK       0.187      ✗
+2024-01-05   OPAD       OPAD       0.741      ✓
+2024-01-06   BRAK       OPAD       0.643      ✗
+2024-01-07   OPAD       BRAK       0.338      ✗
+2024-01-08   OPAD       OPAD       0.592      ✓
+2024-01-09   OPAD       OPAD       0.545      ✓
+2024-01-10   OPAD       OPAD       0.534      ✓
+2024-01-11   OPAD       OPAD       0.620      ✓
+2024-01-12   BRAK       OPAD       0.743      ✗
+2024-01-13   BRAK       BRAK       0.308      ✓
+2024-01-14   BRAK       BRAK       0.239      ✓
+2024-01-15   OPAD       BRAK       0.160      ✗
+2024-01-16   BRAK       BRAK       0.142      ✓
+2024-01-17   OPAD       BRAK       0.272      ✗
+2024-01-18   OPAD       OPAD       0.700      ✓
+2024-01-19   OPAD       OPAD       0.638      ✓
+2024-01-20   OPAD       OPAD       0.522      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: lubelskie
+============================================================
+Liczba dni: 365
+Dokładność: 71.78%
+Dni z opadem (rzeczywiste): 265.0
+Dni z opadem (przewidziane): 290.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.322      ✓
+2024-01-02   OPAD       BRAK       0.231      ✗
+2024-01-03   BRAK       BRAK       0.288      ✓
+2024-01-04   OPAD       BRAK       0.135      ✗
+2024-01-05   OPAD       OPAD       0.820      ✓
+2024-01-06   BRAK       OPAD       0.712      ✗
+2024-01-07   OPAD       BRAK       0.272      ✗
+2024-01-08   OPAD       OPAD       0.523      ✓
+2024-01-09   OPAD       OPAD       0.541      ✓
+2024-01-10   OPAD       OPAD       0.595      ✓
+2024-01-11   OPAD       OPAD       0.513      ✓
+2024-01-12   BRAK       OPAD       0.579      ✗
+2024-01-13   BRAK       BRAK       0.231      ✓
+2024-01-14   BRAK       BRAK       0.236      ✓
+2024-01-15   BRAK       BRAK       0.169      ✓
+2024-01-16   OPAD       BRAK       0.161      ✗
+2024-01-17   OPAD       BRAK       0.238      ✗
+2024-01-18   OPAD       OPAD       0.638      ✓
+2024-01-19   BRAK       OPAD       0.605      ✗
+2024-01-20   OPAD       BRAK       0.373      ✗
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: lubuskie
+============================================================
+Liczba dni: 365
+Dokładność: 70.14%
+Dni z opadem (rzeczywiste): 260.0
+Dni z opadem (przewidziane): 281.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.303      ✓
+2024-01-02   BRAK       BRAK       0.246      ✓
+2024-01-03   BRAK       BRAK       0.102      ✓
+2024-01-04   BRAK       BRAK       0.152      ✓
+2024-01-05   BRAK       OPAD       0.526      ✗
+2024-01-06   BRAK       BRAK       0.430      ✓
+2024-01-07   OPAD       BRAK       0.240      ✗
+2024-01-08   OPAD       BRAK       0.459      ✗
+2024-01-09   OPAD       BRAK       0.444      ✗
+2024-01-10   BRAK       OPAD       0.834      ✗
+2024-01-11   OPAD       BRAK       0.348      ✗
+2024-01-12   BRAK       BRAK       0.455      ✓
+2024-01-13   BRAK       BRAK       0.253      ✓
+2024-01-14   BRAK       BRAK       0.248      ✓
+2024-01-15   OPAD       BRAK       0.169      ✗
+2024-01-16   OPAD       BRAK       0.149      ✗
+2024-01-17   BRAK       BRAK       0.253      ✓
+2024-01-18   BRAK       BRAK       0.409      ✓
+2024-01-19   OPAD       BRAK       0.425      ✗
+2024-01-20   OPAD       OPAD       0.577      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: mazowieckie
+============================================================
+Liczba dni: 365
+Dokładność: 72.88%
+Dni z opadem (rzeczywiste): 263.0
+Dni z opadem (przewidziane): 288.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.159      ✓
+2024-01-02   BRAK       BRAK       0.205      ✓
+2024-01-03   BRAK       BRAK       0.179      ✓
+2024-01-04   OPAD       BRAK       0.240      ✗
+2024-01-05   OPAD       OPAD       0.833      ✓
+2024-01-06   OPAD       OPAD       0.599      ✓
+2024-01-07   OPAD       OPAD       0.578      ✓
+2024-01-08   OPAD       BRAK       0.434      ✗
+2024-01-09   OPAD       BRAK       0.450      ✗
+2024-01-10   BRAK       OPAD       0.694      ✗
+2024-01-11   OPAD       BRAK       0.223      ✗
+2024-01-12   BRAK       BRAK       0.420      ✓
+2024-01-13   BRAK       BRAK       0.268      ✓
+2024-01-14   BRAK       BRAK       0.295      ✓
+2024-01-15   OPAD       BRAK       0.189      ✗
+2024-01-16   OPAD       BRAK       0.190      ✗
+2024-01-17   BRAK       BRAK       0.337      ✓
+2024-01-18   BRAK       BRAK       0.435      ✓
+2024-01-19   OPAD       BRAK       0.453      ✗
+2024-01-20   OPAD       OPAD       0.579      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: małopolskie
+============================================================
+Liczba dni: 365
+Dokładność: 72.05%
+Dni z opadem (rzeczywiste): 239.0
+Dni z opadem (przewidziane): 277.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.295      ✓
+2024-01-02   BRAK       BRAK       0.261      ✓
+2024-01-03   BRAK       BRAK       0.123      ✓
+2024-01-04   BRAK       BRAK       0.197      ✓
+2024-01-05   BRAK       OPAD       0.605      ✗
+2024-01-06   BRAK       BRAK       0.417      ✓
+2024-01-07   OPAD       BRAK       0.466      ✗
+2024-01-08   OPAD       BRAK       0.451      ✗
+2024-01-09   OPAD       OPAD       0.503      ✓
+2024-01-10   BRAK       BRAK       0.457      ✓
+2024-01-11   BRAK       BRAK       0.240      ✓
+2024-01-12   BRAK       BRAK       0.185      ✓
+2024-01-13   BRAK       BRAK       0.219      ✓
+2024-01-14   BRAK       BRAK       0.235      ✓
+2024-01-15   BRAK       BRAK       0.177      ✓
+2024-01-16   BRAK       BRAK       0.222      ✓
+2024-01-17   BRAK       BRAK       0.419      ✓
+2024-01-18   BRAK       BRAK       0.406      ✓
+2024-01-19   OPAD       BRAK       0.455      ✗
+2024-01-20   OPAD       BRAK       0.498      ✗
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: opolskie
+============================================================
+Liczba dni: 365
+Dokładność: 73.15%
+Dni z opadem (rzeczywiste): 258.0
+Dni z opadem (przewidziane): 288.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.295      ✓
+2024-01-02   BRAK       BRAK       0.273      ✓
+2024-01-03   BRAK       BRAK       0.113      ✓
+2024-01-04   OPAD       BRAK       0.195      ✗
+2024-01-05   BRAK       OPAD       0.768      ✗
+2024-01-06   OPAD       BRAK       0.289      ✗
+2024-01-07   OPAD       OPAD       0.704      ✓
+2024-01-08   OPAD       OPAD       0.575      ✓
+2024-01-09   OPAD       BRAK       0.465      ✗
+2024-01-10   BRAK       OPAD       0.850      ✗
+2024-01-11   BRAK       BRAK       0.211      ✓
+2024-01-12   BRAK       BRAK       0.187      ✓
+2024-01-13   BRAK       BRAK       0.195      ✓
+2024-01-14   BRAK       BRAK       0.250      ✓
+2024-01-15   OPAD       BRAK       0.154      ✗
+2024-01-16   OPAD       BRAK       0.172      ✗
+2024-01-17   BRAK       BRAK       0.230      ✓
+2024-01-18   OPAD       BRAK       0.412      ✗
+2024-01-19   OPAD       OPAD       0.669      ✓
+2024-01-20   OPAD       OPAD       0.531      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: podkarpackie
+============================================================
+Liczba dni: 365
+Dokładność: 74.25%
+Dni z opadem (rzeczywiste): 255.0
+Dni z opadem (przewidziane): 287.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.317      ✓
+2024-01-02   BRAK       BRAK       0.228      ✓
+2024-01-03   BRAK       BRAK       0.115      ✓
+2024-01-04   OPAD       BRAK       0.163      ✗
+2024-01-05   OPAD       OPAD       0.788      ✓
+2024-01-06   OPAD       OPAD       0.625      ✓
+2024-01-07   OPAD       OPAD       0.646      ✓
+2024-01-08   OPAD       BRAK       0.457      ✗
+2024-01-09   OPAD       OPAD       0.532      ✓
+2024-01-10   OPAD       OPAD       0.640      ✓
+2024-01-11   BRAK       BRAK       0.462      ✓
+2024-01-12   BRAK       BRAK       0.238      ✓
+2024-01-13   BRAK       BRAK       0.214      ✓
+2024-01-14   BRAK       BRAK       0.281      ✓
+2024-01-15   BRAK       BRAK       0.167      ✓
+2024-01-16   OPAD       BRAK       0.222      ✗
+2024-01-17   OPAD       BRAK       0.341      ✗
+2024-01-18   OPAD       BRAK       0.409      ✗
+2024-01-19   OPAD       OPAD       0.761      ✓
+2024-01-20   OPAD       OPAD       0.839      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: podlaskie
+============================================================
+Liczba dni: 365
+Dokładność: 71.23%
+Dni z opadem (rzeczywiste): 249.0
+Dni z opadem (przewidziane): 288.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.194      ✓
+2024-01-02   BRAK       BRAK       0.392      ✓
+2024-01-03   BRAK       BRAK       0.177      ✓
+2024-01-04   BRAK       BRAK       0.166      ✓
+2024-01-05   OPAD       OPAD       0.519      ✓
+2024-01-06   OPAD       OPAD       0.808      ✓
+2024-01-07   OPAD       BRAK       0.297      ✗
+2024-01-08   OPAD       OPAD       0.784      ✓
+2024-01-09   OPAD       OPAD       0.604      ✓
+2024-01-10   OPAD       OPAD       0.845      ✓
+2024-01-11   OPAD       OPAD       0.570      ✓
+2024-01-12   BRAK       OPAD       0.527      ✗
+2024-01-13   BRAK       BRAK       0.329      ✓
+2024-01-14   BRAK       BRAK       0.311      ✓
+2024-01-15   BRAK       BRAK       0.145      ✓
+2024-01-16   OPAD       BRAK       0.130      ✗
+2024-01-17   OPAD       BRAK       0.308      ✗
+2024-01-18   OPAD       OPAD       0.695      ✓
+2024-01-19   OPAD       OPAD       0.720      ✓
+2024-01-20   OPAD       OPAD       0.719      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: pomorskie
+============================================================
+Liczba dni: 365
+Dokładność: 67.67%
+Dni z opadem (rzeczywiste): 242.0
+Dni z opadem (przewidziane): 284.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.282      ✓
+2024-01-02   BRAK       BRAK       0.273      ✓
+2024-01-03   BRAK       BRAK       0.142      ✓
+2024-01-04   OPAD       BRAK       0.195      ✗
+2024-01-05   BRAK       OPAD       0.789      ✗
+2024-01-06   BRAK       BRAK       0.376      ✓
+2024-01-07   OPAD       BRAK       0.312      ✗
+2024-01-08   OPAD       OPAD       0.510      ✓
+2024-01-09   OPAD       BRAK       0.225      ✗
+2024-01-10   OPAD       BRAK       0.394      ✗
+2024-01-11   OPAD       BRAK       0.468      ✗
+2024-01-12   BRAK       OPAD       0.696      ✗
+2024-01-13   BRAK       BRAK       0.238      ✓
+2024-01-14   BRAK       BRAK       0.195      ✓
+2024-01-15   BRAK       BRAK       0.189      ✓
+2024-01-16   OPAD       BRAK       0.218      ✗
+2024-01-17   OPAD       BRAK       0.264      ✗
+2024-01-18   OPAD       BRAK       0.492      ✗
+2024-01-19   OPAD       OPAD       0.685      ✓
+2024-01-20   OPAD       OPAD       0.561      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: warmińsko-mazurskie
+============================================================
+Liczba dni: 365
+Dokładność: 71.51%
+Dni z opadem (rzeczywiste): 242.0
+Dni z opadem (przewidziane): 274.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.371      ✓
+2024-01-02   BRAK       BRAK       0.329      ✓
+2024-01-03   BRAK       BRAK       0.136      ✓
+2024-01-04   BRAK       BRAK       0.229      ✓
+2024-01-05   BRAK       BRAK       0.401      ✓
+2024-01-06   OPAD       BRAK       0.421      ✗
+2024-01-07   OPAD       BRAK       0.386      ✗
+2024-01-08   OPAD       BRAK       0.387      ✗
+2024-01-09   OPAD       BRAK       0.405      ✗
+2024-01-10   OPAD       BRAK       0.403      ✗
+2024-01-11   BRAK       BRAK       0.452      ✓
+2024-01-12   BRAK       BRAK       0.263      ✓
+2024-01-13   BRAK       BRAK       0.179      ✓
+2024-01-14   BRAK       BRAK       0.234      ✓
+2024-01-15   BRAK       BRAK       0.160      ✓
+2024-01-16   BRAK       BRAK       0.218      ✓
+2024-01-17   OPAD       BRAK       0.231      ✗
+2024-01-18   OPAD       OPAD       0.523      ✓
+2024-01-19   OPAD       OPAD       0.584      ✓
+2024-01-20   OPAD       OPAD       0.531      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: wielkopolskie
+============================================================
+Liczba dni: 365
+Dokładność: 65.75%
+Dni z opadem (rzeczywiste): 215.0
+Dni z opadem (przewidziane): 264.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.186      ✓
+2024-01-02   BRAK       BRAK       0.203      ✓
+2024-01-03   BRAK       BRAK       0.131      ✓
+2024-01-04   BRAK       BRAK       0.162      ✓
+2024-01-05   OPAD       OPAD       0.586      ✓
+2024-01-06   BRAK       OPAD       0.701      ✗
+2024-01-07   OPAD       BRAK       0.293      ✗
+2024-01-08   OPAD       BRAK       0.485      ✗
+2024-01-09   OPAD       BRAK       0.229      ✗
+2024-01-10   BRAK       BRAK       0.312      ✓
+2024-01-11   BRAK       BRAK       0.354      ✓
+2024-01-12   BRAK       BRAK       0.241      ✓
+2024-01-13   BRAK       BRAK       0.247      ✓
+2024-01-14   BRAK       BRAK       0.216      ✓
+2024-01-15   BRAK       BRAK       0.171      ✓
+2024-01-16   BRAK       BRAK       0.208      ✓
+2024-01-17   OPAD       BRAK       0.330      ✗
+2024-01-18   OPAD       BRAK       0.416      ✗
+2024-01-19   OPAD       OPAD       0.671      ✓
+2024-01-20   OPAD       OPAD       0.555      ✓
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: zachodniopomorskie
+============================================================
+Liczba dni: 365
+Dokładność: 67.67%
+Dni z opadem (rzeczywiste): 215.0
+Dni z opadem (przewidziane): 263.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.407      ✓
+2024-01-02   BRAK       BRAK       0.263      ✓
+2024-01-03   BRAK       BRAK       0.118      ✓
+2024-01-04   OPAD       BRAK       0.157      ✗
+2024-01-05   OPAD       OPAD       0.762      ✓
+2024-01-06   BRAK       OPAD       0.661      ✗
+2024-01-07   OPAD       BRAK       0.232      ✗
+2024-01-08   OPAD       OPAD       0.591      ✓
+2024-01-09   OPAD       OPAD       0.668      ✓
+2024-01-10   BRAK       OPAD       0.573      ✗
+2024-01-11   BRAK       BRAK       0.235      ✓
+2024-01-12   BRAK       BRAK       0.237      ✓
+2024-01-13   BRAK       BRAK       0.247      ✓
+2024-01-14   BRAK       BRAK       0.182      ✓
+2024-01-15   BRAK       BRAK       0.143      ✓
+2024-01-16   BRAK       BRAK       0.205      ✓
+2024-01-17   OPAD       BRAK       0.362      ✗
+2024-01-18   BRAK       OPAD       0.591      ✗
+2024-01-19   BRAK       BRAK       0.416      ✓
+2024-01-20   OPAD       BRAK       0.430      ✗
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: łódzkie
+============================================================
+Liczba dni: 365
+Dokładność: 66.58%
+Dni z opadem (rzeczywiste): 225.0
+Dni z opadem (przewidziane): 265.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.386      ✓
+2024-01-02   BRAK       BRAK       0.247      ✓
+2024-01-03   BRAK       BRAK       0.145      ✓
+2024-01-04   BRAK       BRAK       0.181      ✓
+2024-01-05   OPAD       OPAD       0.610      ✓
+2024-01-06   BRAK       OPAD       0.723      ✗
+2024-01-07   OPAD       BRAK       0.250      ✗
+2024-01-08   OPAD       BRAK       0.221      ✗
+2024-01-09   OPAD       OPAD       0.648      ✓
+2024-01-10   BRAK       OPAD       0.545      ✗
+2024-01-11   BRAK       BRAK       0.341      ✓
+2024-01-12   BRAK       BRAK       0.260      ✓
+2024-01-13   BRAK       BRAK       0.298      ✓
+2024-01-14   BRAK       BRAK       0.200      ✓
+2024-01-15   OPAD       BRAK       0.171      ✗
+2024-01-16   BRAK       BRAK       0.178      ✓
+2024-01-17   OPAD       BRAK       0.259      ✗
+2024-01-18   OPAD       BRAK       0.386      ✗
+2024-01-19   BRAK       BRAK       0.452      ✓
+2024-01-20   OPAD       BRAK       0.391      ✗
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: śląskie
+============================================================
+Liczba dni: 365
+Dokładność: 68.49%
+Dni z opadem (rzeczywiste): 232.0
+Dni z opadem (przewidziane): 267.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.198      ✓
+2024-01-02   BRAK       BRAK       0.329      ✓
+2024-01-03   BRAK       BRAK       0.118      ✓
+2024-01-04   BRAK       BRAK       0.170      ✓
+2024-01-05   OPAD       OPAD       0.548      ✓
+2024-01-06   OPAD       OPAD       0.723      ✓
+2024-01-07   OPAD       BRAK       0.318      ✗
+2024-01-08   OPAD       BRAK       0.240      ✗
+2024-01-09   OPAD       BRAK       0.295      ✗
+2024-01-10   BRAK       OPAD       0.553      ✗
+2024-01-11   BRAK       BRAK       0.230      ✓
+2024-01-12   BRAK       BRAK       0.197      ✓
+2024-01-13   BRAK       BRAK       0.241      ✓
+2024-01-14   BRAK       BRAK       0.278      ✓
+2024-01-15   OPAD       BRAK       0.190      ✗
+2024-01-16   BRAK       BRAK       0.174      ✓
+2024-01-17   OPAD       BRAK       0.216      ✗
+2024-01-18   OPAD       OPAD       0.502      ✓
+2024-01-19   BRAK       OPAD       0.589      ✗
+2024-01-20   OPAD       BRAK       0.342      ✗
+... i 345 więcej dni
+
+============================================================
+WOJEWÓDZTWO: świętokrzyskie
+============================================================
+Liczba dni: 365
+Dokładność: 68.22%
+Dni z opadem (rzeczywiste): 230.0
+Dni z opadem (przewidziane): 266.0
+
+Przykładowe predykcje:
+------------------------------------------------------------
+Data         Rzeczyw.   Predykc.   Pewność    Status
+------------------------------------------------------------
+2024-01-01   BRAK       BRAK       0.220      ✓
+2024-01-02   BRAK       BRAK       0.261      ✓
+2024-01-03   BRAK       BRAK       0.150      ✓
+2024-01-04   OPAD       BRAK       0.167      ✗
+2024-01-05   BRAK       OPAD       0.758      ✗
+2024-01-06   BRAK       BRAK       0.394      ✓
+2024-01-07   OPAD       BRAK       0.263      ✗
+2024-01-08   OPAD       BRAK       0.349      ✗
+2024-01-09   OPAD       BRAK       0.444      ✗
+2024-01-10   BRAK       OPAD       0.712      ✗
+2024-01-11   BRAK       BRAK       0.258      ✓
+2024-01-12   BRAK       BRAK       0.228      ✓
+2024-01-13   BRAK       BRAK       0.200      ✓
+2024-01-14   BRAK       BRAK       0.145      ✓
+2024-01-15   BRAK       BRAK       0.160      ✓
+2024-01-16   BRAK       BRAK       0.222      ✓
+2024-01-17   OPAD       BRAK       0.394      ✗
+2024-01-18   BRAK       BRAK       0.274      ✓
+2024-01-19   OPAD       BRAK       0.426      ✗
+2024-01-20   OPAD       OPAD       0.565      ✓
+... i 345 więcej dni

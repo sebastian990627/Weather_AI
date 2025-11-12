@@ -1,0 +1,7 @@
+{
+  "train_size": 29104,
+  "test_size": 5840,
+  "test_roc_auc": 0.6925294646693769,
+  "test_accuracy": 0.7018835616438356,
+  "voivodeships": 16
+}
