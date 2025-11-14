@@ -1,362 +1,304 @@
 # -*- coding: utf-8 -*-
 """
-Prosty program: przewidywanie opadów w województwach Polski
-- Wczytuje dane z lokalnych plików CSV (IMGW SYNOP)
-- Mapuje stacje na województwa
-- Trenuje model klasyfikacji (czy jutro będzie padać?)
-- Ocenia wyniki na zbiorze testowym
+Przewidywanie opadów per STACJA (bez województw)
+- Wczytuje dane IMGW SYNOP z lokalnych CSV (WORK_DIR/<rok>/*.csv)
+- Buduje cechy czasowe dla KAŻDEJ stacji
+- Cel: czy jutro (t+1) wystąpi opad >= 0.1 mm w tej stacji
+- Walidacja: TimeSeriesSplit na train
+- Podział: train/test po latach
+- Zapisuje metryki, raporty, macierz pomyłek i model
+
+Zależności:
+    pip install pandas numpy scikit-learn joblib matplotlib seaborn
 """
 
 import os
-import pandas as pd
+import json
+import warnings
 import numpy as np
-import geopandas as gpd
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
-from joblib import dump
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import warnings
-warnings.filterwarnings('ignore')
+
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
+from sklearn.metrics import (
+    classification_report, roc_auc_score, confusion_matrix,
+    f1_score, precision_score, recall_score, average_precision_score
+)
+from sklearn.ensemble import HistGradientBoostingClassifier
+from joblib import dump
+
+warnings.filterwarnings("ignore")
 
 # ====== KONFIGURACJA ======
-WORK_DIR = "work_simple"
-OUT_DIR = "out_simple"
-GEOJSON_PATH = "wojewodztwa-min.geojson"
+WORK_DIR = "work_simple"      # wejście: WORK_DIR/<rok>/*.csv
+OUT_DIR  = "out_simple"       # wyjście: raporty, wykresy, model
 TRAIN_YEARS = [2019, 2020, 2021, 2022, 2023]
-TEST_YEARS = [2024]
+TEST_YEARS  = [2024]
 
-
+# ====== WCZYTANIE DANYCH ======
 def load_csv_files(years):
-    """Wczytuje pliki CSV z podanych lat"""
+    """
+    Oczekiwany układ (jak w Twoim kodzie):
+      0: station_id
+      1: station_name
+      2: rok
+      3: miesiąc
+      4: dzień
+      14: opad [mm]
+       5: tmax, 7: tmin, 9: tavg  (częsty układ IMGW)
+    """
     all_data = []
-    all_stations = {}  # Do zbierania współrzędnych
-    
+    all_stations = {}
+
     for year in years:
         year_dir = os.path.join(WORK_DIR, str(year))
         if not os.path.exists(year_dir):
             continue
-            
         csv_files = [f for f in os.listdir(year_dir) if f.endswith('.csv')]
-        
         for csv_file in csv_files:
             path = os.path.join(year_dir, csv_file)
             try:
-                # Pliki bez nagłówków, format: kod, nazwa, rok, miesiąc, dzień, dane...
                 df = pd.read_csv(path, header=None, encoding='latin1')
-                
-                if len(df.columns) < 15:
+                if df.shape[1] < 15:
                     continue
-                
-                # Podstawowe kolumny
-                df['station_id'] = df[0].astype(str).str.strip().str.replace('"', '')
+
+                df['station_id']   = df[0].astype(str).str.strip().str.replace('"', '')
                 df['station_name'] = df[1].astype(str).str.strip().str.replace('"', '')
+
+                # data z kolumn 2/3/4
                 df['date'] = pd.to_datetime(
-                    df[2].astype(str) + '-' + 
-                    df[3].astype(str).str.zfill(2) + '-' + 
-                    df[4].astype(str).str.zfill(2),
+                    df[2].astype(str) + '-' + df[3].astype(str).str.zfill(2) + '-' + df[4].astype(str).str.zfill(2),
                     errors='coerce'
                 )
-                df['precip'] = pd.to_numeric(df[14], errors='coerce').fillna(0)
-                df['tmax'] = pd.to_numeric(df[5], errors='coerce')
-                df['tmin'] = pd.to_numeric(df[7], errors='coerce')
-                df['tavg'] = pd.to_numeric(df[9], errors='coerce')
-                
-                # Zbierz unikalne stacje
+
+                # meteo
+                df['precip'] = pd.to_numeric(df[14], errors='coerce').fillna(0.0)
+                df['tmax']   = pd.to_numeric(df[5],  errors='coerce')
+                df['tmin']   = pd.to_numeric(df[7],  errors='coerce')
+                df['tavg']   = pd.to_numeric(df[9],  errors='coerce')
+
+                # słownik stacji (info)
                 for sid, sname in zip(df['station_id'].unique(), df['station_name'].unique()):
                     if sid not in all_stations:
                         all_stations[sid] = sname
-                
-                # Zachowaj tylko potrzebne kolumny
-                df = df[['station_id', 'station_name', 'date', 'precip', 'tmax', 'tmin', 'tavg']]
+
+                df = df[['station_id','station_name','date','precip','tmax','tmin','tavg']]
                 df = df.dropna(subset=['date'])
-                
                 all_data.append(df)
-                
             except Exception:
                 continue
-    
+
     if not all_data:
-        raise Exception("Nie znaleziono żadnych danych!")
-    
-    print(f"  ✓ Znaleziono {len(all_stations)} unikalnych stacji:")
-    for sid, sname in sorted(all_stations.items())[:10]:
+        raise RuntimeError("Nie znaleziono żadnych danych wejściowych w WORK_DIR.")
+
+    print(f"  ✓ Znaleziono {len(all_stations)} unikalnych stacji (pierwsze 10):")
+    for sid, sname in list(sorted(all_stations.items()))[:10]:
         print(f"    - {sid}: {sname}")
     if len(all_stations) > 10:
         print(f"    ... i {len(all_stations)-10} więcej")
-    
-    return pd.concat(all_data, ignore_index=True), all_stations
 
+    data = pd.concat(all_data, ignore_index=True)
+    # porządek i deduplikacja (gdyby były duplikaty w plikach)
+    data = data.sort_values(['station_id','date']).drop_duplicates(subset=['station_id','date'])
+    return data, all_stations
 
-def map_stations_to_voivodeships(data, all_stations, geojson_path):
-    """Mapuje stacje meteorologiczne na województwa - rozdziela równomiernie"""
-    # Wczytaj granice województw
-    gdf_woj = gpd.read_file(geojson_path)
-    
-    # Znajdź kolumnę z nazwą województwa
-    name_col = None
-    for col in ['name', 'nazwa', 'jpt_nazwa_', 'JPT_NAZWA_']:
-        if col in gdf_woj.columns:
-            name_col = col
-            break
-    if name_col is None:
-        name_col = [c for c in gdf_woj.columns if c != 'geometry'][0]
-    
-    wojewodztwa = sorted(gdf_woj[name_col].tolist())
-    print(f"\n  📍 Mapowanie {len(all_stations)} stacji na {len(wojewodztwa)} województw...")
-    print(f"  📍 Stacje zostaną rozdzielone równomiernie między województwa")
-    
-    # Przypisz stacje równomiernie do województw
-    station_to_woj = {}
-    sorted_stations = sorted(all_stations.keys())
-    
-    for i, sid in enumerate(sorted_stations):
-        woj = wojewodztwa[i % len(wojewodztwa)]
-        station_to_woj[sid] = woj
-    
-    # Pokaż statystyki
-    from collections import Counter
-    woj_counts = Counter(station_to_woj.values())
-    print(f"\n  ✓ Rozkład stacji po województwach:")
-    for woj in sorted(wojewodztwa):
-        count = woj_counts.get(woj, 0)
-        print(f"    - {woj}: {count} stacji")
-    
-    return station_to_woj
+# ====== CECHY (PER STACJA) ======
+def build_features_per_station(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Budujemy cechy dla KAŻDEJ stacji osobno, bez mieszania z innymi stacjami.
+    Target: rain_tomorrow (czy jutro opad >= 0.1 mm w TEJ stacji).
+    """
+    df = df.sort_values(['station_id','date']).copy()
 
+    # bazowe
+    df['precip'] = df['precip'].fillna(0.0)
+    df['tmax']   = df['tmax'].astype(float)
+    df['tmin']   = df['tmin'].astype(float)
+    df['tavg']   = df['tavg'].astype(float)
 
-def create_features(data, station_to_woj):
-    """Tworzy cechy dla modelu"""
-    # Dodaj województwo
-    data['voivodeship'] = data['station_id'].map(station_to_woj)
-    data = data.dropna(subset=['voivodeship'])
-    
-    # Czy padało (>= 0.1mm)
-    data['rain_today'] = (data['precip'] >= 0.1).astype(int)
-    
-    # Agregacja do poziomu województwa (średnia dzienna)
-    daily = data.groupby(['voivodeship', 'date']).agg({
-        'precip': 'mean',
-        'tmax': 'mean',
-        'tmin': 'mean',
-        'tavg': 'mean',
-        'rain_today': 'max'  # czy padało w JAKIEJKOLWIEK stacji w województwie
-    }).reset_index()
-    
-    # Target: czy jutro będzie padać
-    daily = daily.sort_values(['voivodeship', 'date'])
-    daily['rain_tomorrow'] = daily.groupby('voivodeship')['rain_today'].shift(-1)
-    daily = daily.dropna(subset=['rain_tomorrow'])
-    
-    # Cechy z przeszłości
-    for col in ['precip', 'tmax', 'tmin', 'tavg', 'rain_today']:
-        daily[f'{col}_lag1'] = daily.groupby('voivodeship')[col].shift(1)
-        daily[f'{col}_lag7'] = daily.groupby('voivodeship')[col].shift(7)
-    
-    # Usuń wiersze z brakującymi wartościami
-    daily = daily.dropna()
-    
-    # Dodaj informacje o dacie
-    daily['month'] = daily['date'].dt.month
-    daily['day_of_year'] = daily['date'].dt.dayofyear
-    daily['year'] = daily['date'].dt.year
-    
-    return daily
+    # dzisiejszy opad binarny + target jutro
+    df['rain_today'] = (df['precip'] >= 0.1).astype(int)
+    df['rain_tomorrow'] = df.groupby('station_id')['rain_today'].shift(-1)
 
+    # lags per stacja
+    for col in ['precip','tmax','tmin','tavg','rain_today']:
+        df[f'{col}_lag1'] = df.groupby('station_id')[col].shift(1)
+        df[f'{col}_lag7'] = df.groupby('station_id')[col].shift(7)
 
-def train_and_evaluate(data):
-    """Trenuje model i ocenia wyniki"""
-    # Podział train/test
-    train = data[data['year'].isin(TRAIN_YEARS)]
-    test = data[data['year'].isin(TEST_YEARS)]
+    # sezonowość
+    df['month'] = df['date'].dt.month
+    df['day_of_year'] = df['date'].dt.dayofyear
+    df['year'] = df['date'].dt.year
+
+    # usuń rekordy bez targetu/lagów
+    df = df.dropna(subset=['rain_tomorrow','precip_lag1','tmax_lag1','tmin_lag1','tavg_lag1']).copy()
+    df['rain_tomorrow'] = df['rain_tomorrow'].astype(int)
+    return df
+
+def feature_cols(df):
+    skip = {'date','year','station_id','station_name','rain_tomorrow'}
+    return [c for c in df.columns if c not in skip]
+
+# ====== TRENING / WALIDACJA ======
+def train_and_evaluate(data: pd.DataFrame):
+    """
+    - Walidacja czasowa na TRAIN (TimeSeriesSplit)
+    - Trening na całym TRAIN, ocena na TEST (lata z TEST_YEARS)
+    """
+    train = data[data['year'].isin(TRAIN_YEARS)].copy()
+    test  = data[data['year'].isin(TEST_YEARS)].copy()
+
+    if train.empty or test.empty:
+        raise RuntimeError("Za mało danych w train/test (sprawdź TRAIN_YEARS/TEST_YEARS).")
+
+    feats = feature_cols(data)
+    Xtr, ytr = train[feats].fillna(0.0), train['rain_tomorrow'].values
+    Xte, yte = test [feats].fillna(0.0),  test ['rain_tomorrow'].values
+
+    print(f"\n📊 Rozmiar danych: train={len(train)}, test={len(test)}, stacji={data['station_id'].nunique()}")
+
+    # Optymalizacja hiperparametrów z GridSearchCV
+    print("\n🔍 Optymalizacja hiperparametrów (GridSearchCV + TimeSeriesSplit)...")
+    print("   Testowanie ~36 kombinacji...")
     
-    print(f"\n📊 Rozmiar danych:")
-    print(f"  Train: {len(train)} rekordów")
-    print(f"  Test:  {len(test)} rekordów")
-    print(f"  Województw: {data['voivodeship'].nunique()}")
-    
-    wojewodztwa = sorted(data['voivodeship'].unique())
-    print(f"\n  Województwa w danych:")
-    for woj in wojewodztwa:
-        n_train = len(train[train['voivodeship'] == woj])
-        n_test = len(test[test['voivodeship'] == woj])
-        print(f"    - {woj}: train={n_train}, test={n_test}")
-    
-    # Kolumny do trenowania
-    feature_cols = [
-        'precip', 'tmax', 'tmin', 'tavg', 'rain_today',
-        'precip_lag1', 'tmax_lag1', 'tmin_lag1', 'tavg_lag1', 'rain_today_lag1',
-        'precip_lag7', 'tmax_lag7', 'tmin_lag7', 'tavg_lag7', 'rain_today_lag7',
-        'month', 'day_of_year'
-    ]
-    
-    X_train = train[feature_cols]
-    y_train = train['rain_tomorrow']
-    X_test = test[feature_cols]
-    y_test = test['rain_tomorrow']
-    
-    # Trenowanie
-    print("\n🔧 Trenowanie modelu...")
-    model = HistGradientBoostingClassifier(
-        max_iter=100,
-        learning_rate=0.1,
-        max_depth=5,
-        random_state=42
-    )
-    model.fit(X_train, y_train)
-    
-    # Predykcje
-    y_pred_train = model.predict(X_train)
-    y_pred_test = model.predict(X_test)
-    y_proba_test = model.predict_proba(X_test)[:, 1]
-    
-    # Metryki
-    print("\n📈 WYNIKI TRAIN:")
-    print(classification_report(y_train, y_pred_train, target_names=['Brak opadu', 'Opad']))
-    
-    print("\n📈 WYNIKI TEST:")
-    print(classification_report(y_test, y_pred_test, target_names=['Brak opadu', 'Opad']))
-    
-    # Dodatkowe metryki
-    print(f"\n🎯 Dodatkowe metryki TEST:")
-    print(f"  ROC AUC: {roc_auc_score(y_test, y_proba_test):.3f}")
-    
-    # Confusion matrix
-    cm = confusion_matrix(y_test, y_pred_test)
-    print(f"\n📊 Macierz pomyłek TEST:")
-    print(f"                Predykcja")
-    print(f"                Brak  Opad")
-    print(f"  Rzecz. Brak    {cm[0,0]:4d}  {cm[0,1]:4d}")
-    print(f"         Opad    {cm[1,0]:4d}  {cm[1,1]:4d}")
-    
-    # Wizualizacja macierzy pomyłek
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-                xticklabels=['Brak opadu', 'Opad'],
-                yticklabels=['Brak opadu', 'Opad'])
-    plt.title('Macierz pomyłek - Test', fontsize=14, fontweight='bold')
-    plt.ylabel('Rzeczywiste', fontsize=12)
-    plt.xlabel('Przewidziane', fontsize=12)
-    plt.tight_layout()
-    confusion_path = os.path.join(OUT_DIR, 'confusion_matrix.png')
-    plt.savefig(confusion_path, dpi=300, bbox_inches='tight')
-    print(f"\n� Macierz pomyłek zapisana: {confusion_path}")
-    plt.close()
-    
-    # Zapisz szczegółowe przewidywania
-    test_results = test.copy()
-    test_results['predicted'] = y_pred_test
-    test_results['probability'] = y_proba_test
-    test_results['correct'] = (test_results['rain_tomorrow'] == test_results['predicted']).astype(int)
-    
-    # Raport po województwach
-    report_path = os.path.join(OUT_DIR, 'predictions_report.txt')
-    with open(report_path, 'w', encoding='utf-8') as f:
-        f.write("=" * 80 + "\n")
-        f.write("RAPORT PRZEWIDYWAŃ OPADÓW - WOJEWÓDZTWA POLSKI\n")
-        f.write("=" * 80 + "\n\n")
-        
-        f.write(f"Okres testowy: {test['date'].min()} - {test['date'].max()}\n")
-        f.write(f"Liczba predykcji: {len(test_results)}\n")
-        f.write(f"Dokładność ogólna: {(test_results['correct'].sum() / len(test_results) * 100):.2f}%\n")
-        f.write(f"ROC AUC: {roc_auc_score(y_test, y_proba_test):.3f}\n\n")
-        
-        f.write("-" * 80 + "\n")
-        f.write("STATYSTYKI PO WOJEWÓDZTWACH\n")
-        f.write("-" * 80 + "\n\n")
-        
-        for woj in sorted(test_results['voivodeship'].unique()):
-            woj_data = test_results[test_results['voivodeship'] == woj]
-            accuracy = (woj_data['correct'].sum() / len(woj_data) * 100)
-            
-            f.write(f"\n{'='*60}\n")
-            f.write(f"WOJEWÓDZTWO: {woj}\n")
-            f.write(f"{'='*60}\n")
-            f.write(f"Liczba dni: {len(woj_data)}\n")
-            f.write(f"Dokładność: {accuracy:.2f}%\n")
-            f.write(f"Dni z opadem (rzeczywiste): {woj_data['rain_tomorrow'].sum()}\n")
-            f.write(f"Dni z opadem (przewidziane): {woj_data['predicted'].sum()}\n\n")
-            
-            f.write("Przykładowe predykcje:\n")
-            f.write("-" * 60 + "\n")
-            f.write(f"{'Data':<12} {'Rzeczyw.':<10} {'Predykc.':<10} {'Pewność':<10} {'Status'}\n")
-            f.write("-" * 60 + "\n")
-            
-            for _, row in woj_data.head(20).iterrows():
-                rzecz = "OPAD" if row['rain_tomorrow'] == 1 else "BRAK"
-                pred = "OPAD" if row['predicted'] == 1 else "BRAK"
-                status = "✓" if row['correct'] == 1 else "✗"
-                f.write(f"{str(row['date'])[:10]:<12} {rzecz:<10} {pred:<10} {row['probability']:.3f}      {status}\n")
-            
-            if len(woj_data) > 20:
-                f.write(f"... i {len(woj_data)-20} więcej dni\n")
-    
-    print(f"💾 Raport szczegółowy zapisany: {report_path}")
-    
-    # Zapisz pełne przewidywania do CSV
-    predictions_csv = os.path.join(OUT_DIR, 'predictions_full.csv')
-    test_results[['date', 'voivodeship', 'rain_tomorrow', 'predicted', 'probability', 'correct']].to_csv(
-        predictions_csv, index=False, encoding='utf-8'
-    )
-    print(f"💾 Pełne przewidywania zapisane: {predictions_csv}")
-    
-    # Zapisz model
-    model_path = os.path.join(OUT_DIR, 'model.joblib')
-    dump(model, model_path)
-    print(f"💾 Model zapisany: {model_path}")
-    
-    # Zapisz metryki
-    metrics = {
-        'train_size': len(train),
-        'test_size': len(test),
-        'test_roc_auc': float(roc_auc_score(y_test, y_proba_test)),
-        'test_accuracy': float((y_pred_test == y_test).mean()),
-        'voivodeships': len(wojewodztwa),
+    # Siatka parametrów - zoptymalizowana pod szybkość
+    param_grid = {
+        'max_iter': [100, 150],
+        'learning_rate': [0.08, 0.1, 0.15],
+        'max_depth': [5, 6],
+        'min_samples_leaf': [20, 40],
+        'l2_regularization': [0.0, 0.1]
     }
     
-    metrics_path = os.path.join(OUT_DIR, 'metrics.json')
-    import json
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    print(f"💾 Metryki zapisane: {metrics_path}")
+    base_model = HistGradientBoostingClassifier(random_state=42)
+    tss = TimeSeriesSplit(n_splits=3)
     
+    grid_search = GridSearchCV(
+        estimator=base_model,
+        param_grid=param_grid,
+        cv=tss,
+        scoring='roc_auc',
+        n_jobs=-1,  # Użyj wszystkich dostępnych rdzeni
+        verbose=1,
+        return_train_score=True
+    )
+    
+    grid_search.fit(Xtr, ytr)
+    
+    print("\n✅ Najlepsze parametry:")
+    for param, value in grid_search.best_params_.items():
+        print(f"   {param}: {value}")
+    print(f"\n🎯 Najlepszy wynik CV (ROC AUC): {grid_search.best_score_:.4f}")
+    
+    # Oblicz dodatkowe metryki dla najlepszego modelu
+    best_model = grid_search.best_estimator_
+    cv_scores = {"roc_auc":[], "pr_auc":[], "f1":[], "precision":[], "recall":[]}
+    
+    print("\n📊 Ocena najlepszego modelu na CV...")
+    for tr_idx, val_idx in TimeSeriesSplit(n_splits=5).split(Xtr):
+        m = HistGradientBoostingClassifier(**grid_search.best_params_, random_state=42)
+        m.fit(Xtr.iloc[tr_idx], ytr[tr_idx])
+        p = m.predict_proba(Xtr.iloc[val_idx])[:,1]
+        pred = (p>=0.5).astype(int)
+        cv_scores["roc_auc"].append(roc_auc_score(ytr[val_idx], p))
+        cv_scores["pr_auc"].append(average_precision_score(ytr[val_idx], p))
+        cv_scores["f1"].append(f1_score(ytr[val_idx], pred))
+        cv_scores["precision"].append(precision_score(ytr[val_idx], pred))
+        cv_scores["recall"].append(recall_score(ytr[val_idx], pred))
+
+    cv_summary = {k: float(np.mean(v)) for k, v in cv_scores.items()}
+    print("  Średnie wyniki CV:", json.dumps(cv_summary, ensure_ascii=False, indent=2))
+
+    # Trenuj na całym train z najlepszymi parametrami
+    print("\n🔧 Trenowanie finalnego modelu z najlepszymi parametrami...")
+    model = HistGradientBoostingClassifier(**grid_search.best_params_, random_state=42)
+    model.fit(Xtr, ytr)
+
+    p_test = model.predict_proba(Xte)[:,1]
+    y_pred = (p_test>=0.5).astype(int)
+
+    print("\n📈 WYNIKI TEST:")
+    print(classification_report(yte, y_pred, target_names=['Brak opadu','Opad']))
+    print(f"🎯 ROC AUC (test): {roc_auc_score(yte, p_test):.3f}")
+
+    # Macierz pomyłek
+    cm = confusion_matrix(yte, y_pred)
+    plt.figure(figsize=(8,6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=['Brak opadu','Opad'], yticklabels=['Brak opadu','Opad'])
+    plt.title('Macierz pomyłek - Test'); plt.ylabel('Rzeczywiste'); plt.xlabel('Przewidziane')
+    os.makedirs(OUT_DIR, exist_ok=True)
+    cm_path = os.path.join(OUT_DIR, 'confusion_matrix.png')
+    plt.tight_layout(); plt.savefig(cm_path, dpi=300, bbox_inches='tight'); plt.close()
+    print(f"💾 Macierz pomyłek zapisana: {cm_path}")
+
+    # Raport per stacja (ile próbek i skuteczność)
+    test_results = test.copy()
+    test_results["predicted"] = y_pred
+    test_results["probability"] = p_test
+    test_results["correct"] = (test_results["rain_tomorrow"] == test_results["predicted"]).astype(int)
+
+    per_station = (
+        test_results.groupby(["station_id","station_name"])
+        .agg(
+            n=("correct","size"),
+            acc=("correct","mean"),
+            pos_rate=("rain_tomorrow","mean")
+        ).reset_index().sort_values("acc", ascending=False)
+    )
+    per_station["acc"] = per_station["acc"].round(4)
+    per_station["pos_rate"] = per_station["pos_rate"].round(4)
+
+    # Zapisy
+    with open(os.path.join(OUT_DIR, "metrics.json"), "w", encoding="utf-8") as f:
+        json.dump({
+            "best_params": grid_search.best_params_,
+            "cv_mean": cv_summary,
+            "test": {
+                "roc_auc": float(roc_auc_score(yte, p_test)),
+                "pr_auc": float(average_precision_score(yte, p_test)),
+                "f1": float(f1_score(yte, y_pred)),
+                "precision": float(precision_score(yte, y_pred)),
+                "recall": float(recall_score(yte, y_pred)),
+                "accuracy": float((y_pred == yte).mean())
+            }
+        }, f, indent=2, ensure_ascii=False)
+
+    with open(os.path.join(OUT_DIR, "classification_report.txt"), "w", encoding="utf-8") as f:
+        f.write(classification_report(yte, y_pred, target_names=['Brak opadu','Opad'], digits=4))
+
+    per_station.to_csv(os.path.join(OUT_DIR, "per_station_summary.csv"), index=False, encoding="utf-8")
+    test_results[['date','station_id','station_name','rain_tomorrow','predicted','probability','correct']].to_csv(
+        os.path.join(OUT_DIR, "predictions_full.csv"), index=False, encoding="utf-8"
+    )
+
+    # Model
+    dump(model, os.path.join(OUT_DIR, "model.joblib"))
+
+    print("\n📁 Zapisano w:", OUT_DIR)
+    print("  - model.joblib")
+    print("  - metrics.json (CV + TEST)")
+    print("  - classification_report.txt")
+    print("  - confusion_matrix.png")
+    print("  - per_station_summary.csv (skuteczność per stacja)")
+    print("  - predictions_full.csv (szczegółowe predykcje)")
+
     return model
 
 
 def main():
-    print("=" * 60)
-    print("🌧️  PRZEWIDYWANIE OPADÓW W WOJEWÓDZTWACH POLSKI")
-    print("=" * 60)
-    
     os.makedirs(OUT_DIR, exist_ok=True)
-    
-    # 1. Wczytaj dane
+
     print("\n📂 Wczytywanie danych...")
-    data, all_stations = load_csv_files(TRAIN_YEARS + TEST_YEARS)
-    print(f"\n  ✓ Wczytano {len(data)} rekordów")
-    print(f"  ✓ Zakres dat: {data['date'].min()} - {data['date'].max()}")
-    
-    # 2. Mapowanie na województwa
-    print("\n🗺️  Mapowanie stacji na województwa...")
-    station_to_woj = map_stations_to_voivodeships(data, all_stations, GEOJSON_PATH)
-    
-    # 3. Tworzenie cech
-    print("\n🔨 Tworzenie cech...")
-    features = create_features(data, station_to_woj)
-    print(f"  ✓ Przygotowano {len(features)} rekordów")
-    
-    # 4. Trenowanie i ocena
-    model = train_and_evaluate(features)
-    
-    print("\n" + "=" * 60)
-    print("✅ GOTOWE!")
-    print("=" * 60)
-    print(f"\n📁 Pliki wyjściowe w katalogu: {OUT_DIR}/")
-    print("  - model.joblib - wytrenowany model")
-    print("  - confusion_matrix.png - wizualizacja macierzy pomyłek")
-    print("  - predictions_report.txt - szczegółowy raport po województwach")
-    print("  - predictions_full.csv - pełne przewidywania")
-    print("  - metrics.json - metryki modelu")
+    raw, _stations = load_csv_files(TRAIN_YEARS + TEST_YEARS)
+
+    print("\n🔨 Budowa cech per stacja...")
+    data = build_features_per_station(raw)
+    print(f"  ✓ Zbudowano {len(data)} rekordów ze stacji={data['station_id'].nunique()}")
+
+    _ = train_and_evaluate(data)
+
 
 
 if __name__ == "__main__":

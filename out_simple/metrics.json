@@ -1,7 +1,24 @@
 {
-  "train_size": 29104,
-  "test_size": 5840,
-  "test_roc_auc": 0.6925294646693769,
-  "test_accuracy": 0.7018835616438356,
-  "voivodeships": 16
+  "best_params": {
+    "l2_regularization": 0.1,
+    "learning_rate": 0.15,
+    "max_depth": 6,
+    "max_iter": 150,
+    "min_samples_leaf": 20
+  },
+  "cv_mean": {
+    "roc_auc": 0.7839659197293695,
+    "pr_auc": 0.7089805840573399,
+    "f1": 0.628017069291763,
+    "precision": 0.6912599844552668,
+    "recall": 0.5755366710726625
+  },
+  "test": {
+    "roc_auc": 0.6707604255741271,
+    "pr_auc": 0.5706411280682432,
+    "f1": 0.5116616154961128,
+    "precision": 0.610726643598616,
+    "recall": 0.44024943310657594,
+    "accuracy": 0.6546293276175388
+  }
 }

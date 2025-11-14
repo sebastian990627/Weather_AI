@@ -1,0 +1,8 @@
+              precision    recall  f1-score   support
+
+  Brak opadu     0.6731    0.8042    0.7328     12641
+        Opad     0.6107    0.4402    0.5117      8820
+
+    accuracy                         0.6546     21461
+   macro avg     0.6419    0.6222    0.6223     21461
+weighted avg     0.6475    0.6546    0.6419     21461
