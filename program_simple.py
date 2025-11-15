@@ -89,10 +89,6 @@ def load_csv_files(years):
                 df['tmin']   = pd.to_numeric(df[7],  errors='coerce')  # Temperatura minimalna
                 df['tavg']   = pd.to_numeric(df[9],  errors='coerce')  # Temperatura średnia
 
-                # Zbieramy unikalne stacje do słownika (dla statystyk)
-                for sid, sname in zip(df['station_id'].unique(), df['station_name'].unique()):
-                    if sid not in all_stations:
-                        all_stations[sid] = sname
 
                 # Zostawiamy tylko kolumny, których potrzebujemy
                 df = df[['station_id','station_name','date','precip','tmax','tmin','tavg']]
@@ -108,12 +104,6 @@ def load_csv_files(years):
     if not all_data:
         raise RuntimeError("Nie znaleziono żadnych danych wejściowych w WORK_DIR.")
 
-    # Wyświetlamy informacje o znalezionych stacjach
-    print(f"  ✓ Znaleziono {len(all_stations)} unikalnych stacji (pierwsze 10):")
-    for sid, sname in list(sorted(all_stations.items()))[:10]:
-        print(f"    - {sid}: {sname}")
-    if len(all_stations) > 10:
-        print(f"    ... i {len(all_stations)-10} więcej")
 
     # Łączymy wszystkie DataFrames w jeden
     data = pd.concat(all_data, ignore_index=True)
@@ -336,7 +326,6 @@ def train_and_evaluate(data: pd.DataFrame):
 
 
 def main():
-    """Główna funkcja programu - koordynuje cały proces."""
     # Tworzymy katalog na wyniki (jeśli nie istnieje)
     os.makedirs(OUT_DIR, exist_ok=True)
 
